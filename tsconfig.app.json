@@ -22,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["client", "server/spotify-artist.ts"]
+  "include": ["client", "scripts/spotify-artist.ts"]
 }
