@@ -19,7 +19,12 @@
     "noUncheckedSideEffectImports": true
   },
 
-  "include": ["vite.config.ts", "server/**/*", "types/**/*"],
+  "include": [
+    "vite.config.ts",
+    "server/**/*",
+    "types/**/*",
+    "scripts/spotify-artist.ts"
+  ],
 
   "exclude": ["node_modules"]
 }

@@ -12,7 +12,8 @@
     "start": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm ./server/server.ts & vite"
   },
   "dependencies": {
-    "@pinecone-database/pinecone": "^5.1.0",
+    "@pinecone-database/pinecone": "^5.0.2",
+    "@tailwindcss/vite": "^4.0.9",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -20,7 +21,8 @@
     "openai": "^4.85.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router-dom": "^6.29.0"
+    "react-router-dom": "^6.29.0",
+    "tailwindcss": "^4.0.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
@@ -28,6 +30,7 @@
     "@types/node": "^22.13.5",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
+    "@types/spotify-web-api-node": "^5.0.11",
     "@vitejs/plugin-react-swc": "^3.8.0",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
