@@ -1,0 +1,5 @@
+/*
+Authenticating with Spotify.
+Fetching user playlists.
+Parsing and formatting playlist data for further processing.
+*/
