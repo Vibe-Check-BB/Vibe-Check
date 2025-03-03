@@ -1,8 +1,8 @@
-import React, { use, useState } from 'react'
-import './styles.css'
+import React, { use, useState } from 'react';
+import './styles.css';
 
 interface Response {
-  vibe: string;
+  similarSongs: string;
 }
 
 function App() {
@@ -11,31 +11,37 @@ function App() {
   const [error, setError] = useState('');
   const [output, setOutput] = useState('');
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setOutput('');
 
     try {
-      const response = await fetch('/api', {
+      const response = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userQuery }), 
-      })
+        body: JSON.stringify({ userQuery }),
+      });
+      const responseData = await response.json();
+
       if (response.status !== 200) {
-        const parsedError: { err: string } = await response.json();
+        const parsedError: { err: string } = responseData;
         setError(parsedError.err);
       } else {
-        const parsedResponse: Response = await response.json();
-        setOutput(parsedResponse.vibe);
+        const parsedResponse: Response = responseData;
+        if (parsedResponse.similarSongs) {
+          setOutput(parsedResponse.similarSongs);
+        } else {
+          setError('similar songs are not found');
+        }
       }
-    } catch(err) {
+    } catch (err) {
       setError('Error fetching the song');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -66,11 +72,11 @@ function App() {
         </button>
       </form>
       {error && <p>{error}</p>}
-      <div className='flex text-[16px]'>
+      <div className="flex text-[16px]">
         {output && (
-          <div>
-            <h2>Check your vibe:</h2>
-            <p>{output}</p>
+          <div className="m-4">
+            <h2 className="text-[18px]">This is our recommendation:</h2>
+            <p className='my-4'>{output}</p>
           </div>
         )}
       </div>
@@ -78,4 +84,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

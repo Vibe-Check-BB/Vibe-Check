@@ -4,7 +4,7 @@ Query the database for similar embeddings
 */
 
 import { Pinecone } from '@pinecone-database/pinecone';
-import { EmbedSongRequest } from '../../types/embeddingTypes';
+import { EmbedSongRequest } from '../../types/embeddingTypes.ts';
 import 'dotenv/config';
 
 const pc = new Pinecone({
@@ -36,6 +36,9 @@ export const storeSongEmbedding = async (
 };
 
 export const findSimilarSongs = async (queryEmbedding: number[]) => {
+  // To verify that the index is populated
+  // const stats = await index.describeIndexStats();
+  // console.log(stats);
   try {
     const queryResponse = await index.query({
       vector: queryEmbedding,
