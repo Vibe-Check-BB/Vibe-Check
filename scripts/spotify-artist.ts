@@ -34,7 +34,7 @@ async function topArtists() {
 const PlaylistId = '2YRe7HRKNRvXdJBp9nXFza'
 
 // spotifyApi.getPlaylistTracks -> retrives the tracks of a specified playlist id
-  const top50 = await spotifyApi.getPlaylistTracks(PlaylistId, {limit: 3})
+  const top50 = await spotifyApi.getPlaylistTracks(PlaylistId, {limit: 10})
   const artistMap = new Map(); 
 
 // items = [big ah array{...},{...}, ...]
