@@ -4,7 +4,7 @@ Query the database for similar embeddings
 */
 
 import { Pinecone } from '@pinecone-database/pinecone';
-import { EmbedSongRequest } from '../../types/embeddingTypes';
+import { EmbedSongRequest } from '../../types/embeddingTypes.ts';
 import 'dotenv/config';
 
 const pc = new Pinecone({

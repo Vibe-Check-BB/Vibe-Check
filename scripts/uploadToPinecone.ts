@@ -1,7 +1,6 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import * as fs from 'fs';
 import * as dotenv from 'dotenv';
-import { v4 as uuidv4 } from 'uuid';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -28,17 +27,30 @@ interface PineconeRecord {
 }
 
 /**
- * Helper function to break array into chunks of specified size
- * @param array - Array to chunk
+ * Breaks an array into chunks of specified size
+ * @param array - Array to be chunked
  * @param batchSize - Size of each chunk
  * @returns Array of chunks
  */
 const chunks = <T>(array: T[], batchSize = 200): T[][] => {
-  const chunks: T[][] = [];
+  const result: T[][] = [];
   for (let i = 0; i < array.length; i += batchSize) {
-    chunks.push(array.slice(i, i + batchSize));
+    result.push(array.slice(i, i + batchSize));
   }
-  return chunks;
+  return result;
+};
+
+/**
+ * Creates an ASCII-only string for use as a Pinecone ID
+ * @param input - Input string to sanitize
+ * @returns ASCII-only string with non-ASCII chars removed
+ */
+const createAsciiId = (input: string): string => {
+  // Replace spaces with underscores and convert to lowercase
+  const baseString = input.replace(/\s+/g, '_').toLowerCase();
+  
+  // Remove non-ASCII characters
+  return baseString.replace(/[^\x00-\x7F]/g, '');
 };
 
 /**
@@ -59,7 +71,7 @@ async function uploadToPinecone(lyricsData: LyricsObject[]): Promise<void> {
   const records: PineconeRecord[] = lyricsData
     .filter(item => item.artist && item.song && Array.isArray(item.embedding)) // Filter out items missing required fields
     .map(item => ({
-      id: uuidv4(), // Generate a UUID for each record
+      id: createAsciiId(`${item.artist}-${item.song}`), // Create ASCII-only ID from artist and song
       values: item.embedding,
       metadata: {
         artist: item.artist,
@@ -72,11 +84,11 @@ async function uploadToPinecone(lyricsData: LyricsObject[]): Promise<void> {
   // Log the number of records to upload
   console.log(`Preparing to upload ${records.length} records to Pinecone...`);
 
-  // Split records into chunks for batch processing
+  // Break records into chunks of 200
   const recordChunks = chunks(records, 200);
   console.log(`Split into ${recordChunks.length} batches of up to 200 records each`);
 
-  // Process each chunk
+  // Upload chunks sequentially
   for (let i = 0; i < recordChunks.length; i++) {
     const chunk = recordChunks[i];
     try {
@@ -96,7 +108,7 @@ async function uploadToPinecone(lyricsData: LyricsObject[]): Promise<void> {
 }
 
 // Function to process the lyrics file and upload to Pinecone
-async function processAndUpload(filePath: string = './data/lyrics_dataset_w_embeddings'): Promise<void> {
+async function processAndUpload(filePath: string = './data/lyrics_dataset'): Promise<void> {
   try {
     // Check if Pinecone API key is available
     if (!process.env.PINECONE_API_KEY) {
