@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { getEmbedding } from '../services/openaiService';
-import { findSimilarSongs } from '../services/pineconeService';
+import { getEmbedding } from '../services/openaiService.ts';
+import { getOpenAIResponse } from '../services/openaiService.ts';
+import { findSimilarSongs } from '../services/pineconeService.ts';
 
 export const searchSongs = async (
   req: Request,
@@ -11,10 +12,15 @@ export const searchSongs = async (
     const { userQuery } = req.body;
     if (!userQuery) throw new Error('User query must be provided');
     const queryEmbedding = await getEmbedding(userQuery);
-    if ((queryEmbedding.length = 0))
+    if (queryEmbedding.length === 0)
       throw new Error('Failed to generate embeddings on user query');
     const similarSongs = await findSimilarSongs(queryEmbedding);
-    res.locals.similarSongs = similarSongs;
+    // Pinecone index is empty, redirect to openAI for response
+    if (similarSongs.length === 0) {
+      res.locals.similarSongs =await getOpenAIResponse(userQuery);
+    } else {
+      res.locals.similarSongs = similarSongs;
+    }
     // res.locals.similarSongs = [
     //   {
     //     title: 'Mock Song 1',
