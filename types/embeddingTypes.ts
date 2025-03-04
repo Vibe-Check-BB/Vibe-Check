@@ -1,6 +1,7 @@
 export interface EmbedSongRequest {
-  song: string;
+  id: string;
   lyrics: string;
   artist?: string;
   genre?: string;
+  song?: string;
 }
