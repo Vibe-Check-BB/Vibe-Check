@@ -2,6 +2,7 @@ import SpotifyWebApi from "spotify-web-api-node";
 import dotenv from "dotenv";
 import axios from 'axios';
 import fs from "fs";
+import { traceDeprecation } from "process";
 dotenv.config();
 
 
@@ -34,7 +35,7 @@ async function topArtists() {
 const PlaylistId = '2YRe7HRKNRvXdJBp9nXFza'
 
 // spotifyApi.getPlaylistTracks -> retrives the tracks of a specified playlist id
-  const top50 = await spotifyApi.getPlaylistTracks(PlaylistId, {limit: 3})
+  const top50 = await spotifyApi.getPlaylistTracks(PlaylistId, {limit: 10})
   const artistMap = new Map(); 
 
 // items = [big ah array{...},{...}, ...]
@@ -127,21 +128,16 @@ async function getLyrics(artist: string, trackName: string): Promise<string | nu
 
       // now we loop through every track
       for (const track of top10Tracks ) {
-
         //  ** get Artist infomration for genre 
   
-  // extract artist information
-  const artistDataResponse = await spotifyApi.getArtists([artist.id]);
+        // extract artist information
+        const artistDataResponse = await spotifyApi.getArtists([artist.id]);
 
-  const SingleArtist = artistDataResponse.body.artists[0];
-  const genres = SingleArtist.genres;
-
+        const SingleArtist = artistDataResponse.body.artists[0];
+        const genres = SingleArtist.genres;
 
         console.log(`Fetching lyrics for ${track.name} by ${artist.name}...`);
         const ArtistLyrics = await getLyrics(artist.name, track.name, )
-
-
-
 
         if (ArtistLyrics === 'Lyrics not availible') {
           console.log(`Skipping ${track.name} by ${artist.name} LYRICS NOT AVAILABLE`);
@@ -152,9 +148,9 @@ async function getLyrics(artist: string, trackName: string): Promise<string | nu
         lyricsData.push({
           artist: artist.name,
           song: track.name,
-           genre: genres.join(', '),
+          spotifyId: track.id,
+          genre: genres.join(', '),
           lyrics: ArtistLyrics
-         
         })
       }
     }
