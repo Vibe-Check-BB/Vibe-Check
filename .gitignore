@@ -10,6 +10,10 @@ lerna-debug.log*
 # environment variables
 .env
 
+#excessive data
+data/lyrics_dataset_w_embeddings
+data/lyrics_dataset
+
 node_modules
 dist
 dist-ssr

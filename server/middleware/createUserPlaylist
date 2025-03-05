@@ -1,0 +1,26 @@
+import SpotifyWebApi from 'spotify-web-api-node';
+import dotenv from 'dotenv';
+dotenv.config();
+
+// credentials are optional
+const spotifyApi = new SpotifyWebApi({
+    clientId: process.env.SPOTIFY_CLIENT_ID,
+    clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+    redirectUri: process.env.SPOTIFY_REDIRECT_URI
+});
+
+
+function userAuthUrl() {
+    const scopes = ['playlist-modify-public', 'playlist-modify-private']
+    return spotifyApi.createAuthorizeURL(scopes)// generates URL to authenticate user
+    // after user logs in, Spotify redirects user to redirectUri with authorization code.
+
+// grab auth code and exchange for Access token
+    async function authenticateUser(authCode) {
+
+        try {
+            const data = await spotifyApi.authorizationCodeGrant(authCode)
+        }
+    }
+
+}
