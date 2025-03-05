@@ -5,32 +5,39 @@ Returning playlist data to the frontend
 */
 
 import { RequestHandler } from 'express';
-import { getEmbedding } from '../services/openaiService';
+import { getEmbedding } from '../services/openaiService.js';
 import { Request, Response, NextFunction } from 'express';
 import {
   storeSongEmbedding,
-  findSimilarSongs,
-} from '../services/pineconeService';
-import { EmbedSongRequest } from '../../types/embeddingTypes';
+} from '../services/pineconeService.js';
+import { EmbedSongRequest } from '../../types/embeddingTypes.js';
 
 export const embedSongLyrics: RequestHandler = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   try {
-    const { artist, song, lyrics, genre }: EmbedSongRequest = req.body; 
+    const { id, artist, song, lyrics, genre, spotifyId }: EmbedSongRequest =
+      req.body;
     if (!song || !lyrics)
       throw new Error('Song title and lyrics are required');
     const embedding = await getEmbedding(lyrics);
     if (embedding.length === 0)
       throw new Error('Failed to generate embeddings');
 
-    await storeSongEmbedding({song, lyrics, artist, genre}, embedding) ;
+    await storeSongEmbedding(
+      { id, song, lyrics, artist, genre, spotifyId },
+      embedding
+    );
     next();
   } catch (err) {
     return next({
-      log: `embedSongLyrics: ${err.message}`,
+      log: `embedSongLyrics: ${
+        err instanceof Error
+          ? err.message
+          : `Unexpected error of type ${typeof err}: ${JSON.stringify(err)}`
+      }`,
       status: 500,
       message: { err: 'Failed to generate and store song embeddings.' },
     });
