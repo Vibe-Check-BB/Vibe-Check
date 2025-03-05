@@ -20,9 +20,10 @@ export const storeSongEmbedding = async (
   try {
     await index.upsert([
       {
-        id: songData.song,
+        id: songData.id,
         values: embedding,
         metadata: {
+          song: songData.song || 'Unknown',
           artist: songData.artist || 'Unknown',
           genre: songData.genre || 'Unknown',
         },
@@ -36,6 +37,9 @@ export const storeSongEmbedding = async (
 };
 
 export const findSimilarSongs = async (queryEmbedding: number[]) => {
+  // To verify that the index is populated
+  // const stats = await index.describeIndexStats();
+  // console.log(stats);
   try {
     const queryResponse = await index.query({
       vector: queryEmbedding,
@@ -44,10 +48,11 @@ export const findSimilarSongs = async (queryEmbedding: number[]) => {
     });
 
     return queryResponse.matches.map((match) => ({
-      song: match.metadata?.song,
+      id: match.id,
       score: match.score,
       artist: match.metadata?.artist || 'Unknown',
       genre: match.metadata?.genre || 'Unknown',
+      song: match.metadata?.song || 'Unknown',
     }));
   } catch (err) {
     console.error('Error querying Pinecone:', err);

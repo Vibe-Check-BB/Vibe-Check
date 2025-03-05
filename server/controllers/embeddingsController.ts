@@ -18,14 +18,18 @@ export const embedSongLyrics: RequestHandler = async (
   next: NextFunction
 ) => {
   try {
-    const { artist, song, lyrics, genre }: EmbedSongRequest = req.body; 
+    const { id, artist, song, lyrics, genre, spotifyId }: EmbedSongRequest =
+      req.body;
     if (!song || !lyrics)
       throw new Error('Song title and lyrics are required');
     const embedding = await getEmbedding(lyrics);
     if (embedding.length === 0)
       throw new Error('Failed to generate embeddings');
 
-    await storeSongEmbedding({song, lyrics, artist, genre}, embedding) ;
+    await storeSongEmbedding(
+      { id, song, lyrics, artist, genre, spotifyId },
+      embedding
+    );
     next();
   } catch (err) {
     return next({

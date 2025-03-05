@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "nodemon --exec tsx ./server/server.ts",
-    "start": "nodemon --exec node --no-warnings=ExperimentalWarning --loader ts-node/esm ./server/server.ts & vite"
+    "start": "nodemon --exec tsx ./server/server.ts & vite"
   },
   "dependencies": {
     "@pinecone-database/pinecone": "^5.0.2",
@@ -22,7 +22,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^6.29.0",
-    "tailwindcss": "^4.0.9"
+    "spotify-web-api-node": "^5.0.2",
+    "tailwindcss": "^4.0.9",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

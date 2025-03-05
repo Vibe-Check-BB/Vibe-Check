@@ -3,7 +3,12 @@ converting lyrics into embeddings
 error handling
 */
 import { OpenAIEmbeddingResponse } from '../../types/openaiTypes.js';
+import OpenAI from 'openai';
 import 'dotenv/config';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 //create async function take in a string to embed using openai embedding model
 
@@ -29,5 +34,29 @@ export const getEmbedding = async (text: string): Promise<number[]> => {
   } catch (err) {
     console.error('Failed to generate embeddings', err);
     return [];
+  }
+};
+
+export const getOpenAIResponse = async (
+  query: string
+): Promise<string | null> => {
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: 'you are a spotify song recommendation assistant.',
+        },
+        {
+          role: 'user',
+          content: query,
+        },
+      ],
+    });
+    return response.choices[0].message.content;
+  } catch (err) {
+    console.error('Failed to generate embeddings', err);
+    return null;
   }
 };

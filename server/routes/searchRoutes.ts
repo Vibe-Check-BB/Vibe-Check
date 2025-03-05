@@ -2,11 +2,15 @@ import express from 'express';
 import { Request, Response} from 'express';
 import { searchSongs } from '../controllers/searchController.js';
 
-const router = express.Router();
+const searchRouter = express.Router();
 
-router.post('/search', searchSongs, (_req: Request, res: Response) => {
-  res.json({ similarSongs: res.locals.similarSongs });
-});
+searchRouter.post(
+  '/search',
+  searchSongs,
+  (_req: Request, res: Response) => {
+    res.json({ similarSongs: res.locals.similarSongs });
+  }
+);
 
-export default router;
+export default searchRouter;
  
