@@ -152,7 +152,8 @@ async function getLyrics(artist: string, trackName: string): Promise<string | nu
           song: track.name,
           spotifyId: track.id,
           genre: genres.join(', '),
-          lyrics: ArtistLyrics
+          lyrics: ArtistLyrics,
+          // spotifyTrackid: id,     // if needed ***
         })
       }
     }

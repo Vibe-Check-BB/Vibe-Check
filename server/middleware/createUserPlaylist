@@ -11,16 +11,83 @@ const spotifyApi = new SpotifyWebApi({
 
 
 function userAuthUrl() {
-    const scopes = ['playlist-modify-public', 'playlist-modify-private']
-    return spotifyApi.createAuthorizeURL(scopes)// generates URL to authenticate user
-    // after user logs in, Spotify redirects user to redirectUri with authorization code.
-
+    const state = "ElevatorBabyBoyMusicFunTimes5!";
+    const scopes = ['playlist-modify-public',]
+    return spotifyApi.createAuthorizeURL(scopes, state)// generates URL to authenticate user and passes in the URI from spotifyApi
+    // after user logs in:
+    // redirects to URI, 
+    // An authorization code that can be exchanged for an access token.
+    // The value of the state parameter supplied in the request.
 // grab auth code and exchange for Access token
-    async function authenticateUser(authCode) {
 
+// ** check if the returned state matches "ElevatorBabyBoyMusicFunTimes5!" sent.
+
+
+
+// extract code parameter "code=AUTH_CODE" after URI redirect
+    async function authenticateUser(authCode, returnedState, expectedState) {
         try {
-            const data = await spotifyApi.authorizationCodeGrant(authCode)
+            if (returnedState !== expectedState) {
+                throw new Error("STATE MISMATCH <WE ARE UNDER ATTACK THIS IS NOT A DRILL *UNINSTALL WINDOWS FORCE*")
+            }
+        
+
+
+            const data = await spotifyApi.authorizationCodeGrant(authCode); // send authCode to Spotify API
+            // grab the access token (for making API requests) and store it in spotifyApi instance for use in future requests.
+            // grab the refresh token (to get a new access token when it expires). and store it
+
+            spotifyApi.setAccessToken(data.body.access_token);
+            spotifyApi.setRefreshToken(data.body.refresh_token); // recommended to store in database(does not expire quickly)
+        } catch (error) {
+            console.log(`Error authenticating user, error:`, error);
         }
     }
 
+
+
+
+    async function getUserId() {
+        try {
+        const userData = await spotifyApi.getMe(); // makes request to 'v1/me' and adds access token to Bearer in headers
+        const userId = userData.body.id;
+        return userId;            
+        }catch(error) {
+            console.error('Error fetching user ID:', error)
+        }
+
+    }
+
+// ** spotifyApi.createPlaylist() works for the authenticated user without needing their ID.
+
+    async function createPlaylist(userId, playlistName = "Vibe check playlist") {
+        try {
+        const playlist = await spotifyApi.createPlaylist(userId, playlistName, {
+            public: true, // for testing pourpeses 
+        })
+        const playlistId = playlist.body.id
+
+        return playlistId;
+        
+        }catch(error){
+            console.error('Error creating playlist:', error);
+        }
+    }
+
+    async function addTracks(playlistId, trackIds) {
+        try {
+            await spotify.addTrack(playlistId, trackIds.map(id => `spotify: track:${id}`))
+        } catch (error) {
+            console.error('Error adding tracks:', error)
+        }
+    }
+
+async function createUserPlaylist(authCode, pineconeResponse) {
+    await authenticateUser(authCode);
+    const userId = await getUserId();
+
+    playlistId = await createPlaylist(userId);
+    const trackIds = pineconeResponse.similarSongs.map(song => song.spotifyId)
+    addTracks(playlistId, trackIds)
+}
 }
