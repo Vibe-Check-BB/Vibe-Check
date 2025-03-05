@@ -2,7 +2,6 @@ import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import searchRoutes from './routes/searchRoutes.js';
 import cors from 'cors';
-import path from 'path';
 import 'dotenv/config';
 
 const app = express();
