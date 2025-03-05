@@ -2,7 +2,7 @@ import SpotifyWebApi from "spotify-web-api-node";
 import dotenv from "dotenv";
 import axios from 'axios';
 import fs from "fs";
-import { traceDeprecation } from "process";
+
 dotenv.config();
 
 
