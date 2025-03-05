@@ -5,4 +5,5 @@ export interface EmbedSongRequest {
   genre?: string;
   song?: string;
   spotifyId?:string;
+  imageURL?:string;
 }

@@ -53,6 +53,8 @@ export const findSimilarSongs = async (queryEmbedding: number[]) => {
       artist: match.metadata?.artist || 'Unknown',
       genre: match.metadata?.genre || 'Unknown',
       song: match.metadata?.song || 'Unknown',
+      imageURL: match.metadata?.imageURL || 'Unknown',
+      spotifyId: match.metadata?.spotifyId || 'Unknown',
     }));
   } catch (err) {
     console.error('Error querying Pinecone:', err);
