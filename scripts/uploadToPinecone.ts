@@ -13,6 +13,7 @@ interface LyricsObject {
   lyrics: string;
   spotifyId: string;
   embedding: number[];
+  imageURL: string;
   [key: string]: any;
 }
 
@@ -25,6 +26,7 @@ interface PineconeRecord {
     genre: string;
     lyrics: string;
     spotifyId: string;
+    imageURL: string;
   };
 }
 
@@ -80,7 +82,8 @@ async function uploadToPinecone(lyricsData: LyricsObject[]): Promise<void> {
         song: item.song,
         spotifyId: item.spotifyId,
         genre: item.genre || '',
-        lyrics: item.lyrics || ''
+        lyrics: item.lyrics || '',
+        imageURL: item.imageURL || ''
       }
     }));
 
