@@ -1,21 +1,25 @@
 import React, { use, useState } from 'react';
 import './styles.css';
 
+interface Song {
+  id: string;
+  song: string;
+}
 interface Response {
-  similarSongs: string;
+  similarSongs: Song[];
 }
 
 function App() {
   const [userQuery, setUserQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [output, setOutput] = useState('');
+  const [output, setOutput] = useState<Song[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setOutput('');
+    setOutput([]);
 
     try {
       const response = await fetch('/api/search', {
@@ -30,7 +34,11 @@ function App() {
         setError(parsedError.err);
       } else {
         const parsedResponse: Response = responseData;
-        if (parsedResponse.similarSongs) {
+        // Make sure parsed response is array for mapping
+        if (
+          parsedResponse.similarSongs &&
+          Array.isArray(parsedResponse.similarSongs)
+        ) {
           setOutput(parsedResponse.similarSongs);
         } else {
           setError('similar songs are not found');
@@ -76,7 +84,15 @@ function App() {
         {output && (
           <div className="m-4">
             <h2 className="text-[18px]">This is our recommendation:</h2>
-            <p className='my-4'>{output}</p>
+            {output.map((song) => (
+              <div key={song.id}>
+                <p>Id: {song.id}</p>
+                <p>score: {song.score}</p>
+                <p>artist: {song.artist}</p>
+                <p>genre: {song.genre}</p>
+                <p>song: {song.song}</p>
+              </div>
+            ))}
           </div>
         )}
       </div>
