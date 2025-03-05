@@ -11,6 +11,7 @@ interface LyricsObject {
   song: string;
   genre: string;
   lyrics: string;
+  spotifyId: string;
   embedding: number[];
   [key: string]: any;
 }
@@ -23,6 +24,7 @@ interface PineconeRecord {
     song: string;
     genre: string;
     lyrics: string;
+    spotifyId: string;
   };
 }
 
@@ -76,6 +78,7 @@ async function uploadToPinecone(lyricsData: LyricsObject[]): Promise<void> {
       metadata: {
         artist: item.artist,
         song: item.song,
+        spotifyId: item.spotifyId,
         genre: item.genre || '',
         lyrics: item.lyrics || ''
       }
