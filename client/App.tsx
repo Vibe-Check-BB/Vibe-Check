@@ -83,16 +83,12 @@ function App() {
       <div className="flex text-[16px]">
         {output && (
           <div className="m-4">
-            <h2 className="text-[18px]">This is our recommendation:</h2>
-            {output.map((song) => (
-              <div key={song.id}>
-                <p>Id: {song.id}</p>
-                <p>score: {song.score}</p>
-                <p>artist: {song.artist}</p>
-                <p>genre: {song.genre}</p>
-                <p>song: {song.song}</p>
-              </div>
-            ))}
+            <h2>We have these songs for you:</h2>
+            <ul>
+              {output.map((song, i) => (
+                <div key={song.id}>{i+1}. {song.song}</div>
+              ))}
+            </ul>
           </div>
         )}
       </div>
