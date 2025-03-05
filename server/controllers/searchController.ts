@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { getEmbedding } from '../services/openaiService';
-import { findSimilarSongs } from '../services/pineconeService';
+import { getEmbedding } from '../services/openaiService.js';
+import { findSimilarSongs } from '../services/pineconeService.js';
 
 export const searchSongs = async (
   req: Request,
@@ -11,7 +11,7 @@ export const searchSongs = async (
     const { userQuery } = req.body;
     if (!userQuery) throw new Error('User query must be provided');
     const queryEmbedding = await getEmbedding(userQuery);
-    if ((queryEmbedding.length = 0))
+    if ((queryEmbedding.length === 0))
       throw new Error('Failed to generate embeddings on user query');
     const similarSongs = await findSimilarSongs(queryEmbedding);
     res.locals.similarSongs = similarSongs;
@@ -32,7 +32,10 @@ export const searchSongs = async (
     return next();
   } catch (err) {
     return next({
-      log: `searchSongs: ${err.message}`,
+      log: `searchSongs: ${err instanceof Error 
+          ? err.message 
+          : `Unexpected error of type ${typeof err}: ${JSON.stringify(err)}`
+      }`,
       status: 500,
       message: { err: 'Failed to retrieve similar songs.' },
     });

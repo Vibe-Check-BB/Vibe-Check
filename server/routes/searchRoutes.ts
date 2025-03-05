@@ -1,5 +1,5 @@
 import express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response} from 'express';
 import { searchSongs } from '../controllers/searchController.js';
 
 const router = express.Router();

@@ -4,7 +4,7 @@ Invoking services to extract lyrics (if needed) using the Genius API.
 Generating embeddings using OpenAI.
 Triggering storage of embeddings in Pinecone.
 */
-import { getEmbedding } from '../services/openaiService';
+import { getEmbedding } from '../services/openaiService.js';
 import { Request, Response, NextFunction } from 'express';
 
 export const queryOpenAIEmbedding = async (
@@ -22,7 +22,11 @@ export const queryOpenAIEmbedding = async (
     return next();
   } catch (err) {
     return next({
-      log: `queryOpenAIEmbedding: ${err.message}`,
+      log: `queryOpenAIEmbedding: ${
+        err instanceof Error 
+          ? err.message 
+          : `Unexpected error of type ${typeof err}: ${JSON.stringify(err)}`
+      }`,
       status: 500,
       message: { err: 'Failed to generate embeddings' },
     });

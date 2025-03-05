@@ -2,7 +2,7 @@
 converting lyrics into embeddings
 error handling
 */
-import { OpenAIEmbeddingResponse } from '../../types/openaiTypes';
+import { OpenAIEmbeddingResponse } from '../../types/openaiTypes.js';
 import 'dotenv/config';
 
 //create async function take in a string to embed using openai embedding model
@@ -23,7 +23,7 @@ export const getEmbedding = async (text: string): Promise<number[]> => {
         input: text,
       }),
     });
-    const data: OpenAIEmbeddingResponse = await response.json();
+    const data = (await response.json()) as OpenAIEmbeddingResponse;
     if (!response.ok) throw new Error('Failed to retrieve embeddings');
     return data.data[0]?.embedding || [];
   } catch (err) {

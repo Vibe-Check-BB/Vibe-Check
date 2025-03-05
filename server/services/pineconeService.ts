@@ -4,7 +4,7 @@ Query the database for similar embeddings
 */
 
 import { Pinecone } from '@pinecone-database/pinecone';
-import { EmbedSongRequest } from '../../types/embeddingTypes';
+import { EmbedSongRequest } from '../../types/embeddingTypes.js';
 import 'dotenv/config';
 
 const pc = new Pinecone({
@@ -44,7 +44,7 @@ export const findSimilarSongs = async (queryEmbedding: number[]) => {
     });
 
     return queryResponse.matches.map((match) => ({
-      song: match.id,
+      song: match.metadata?.song,
       score: match.score,
       artist: match.metadata?.artist || 'Unknown',
       genre: match.metadata?.genre || 'Unknown',
