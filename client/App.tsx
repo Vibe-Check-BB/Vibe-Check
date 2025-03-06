@@ -1,6 +1,8 @@
-import React, { use, useState } from 'react';
+import React, { useState } from 'react';
 import './styles.css';
-import { access } from 'fs';
+
+import { useAuth } from './Components/AuthContext';
+import { authPopup, generatePlaylist } from '../server/services/spotifyService';
 
 interface Song {
   id: string;
@@ -15,6 +17,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [output, setOutput] = useState<Song[]>([]);
+
+  const { accessToken } = useAuth();
+  const [playlistId, setPlaylistId] = useState<string | null>(null);
 
   // * Handling song search
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,25 +60,27 @@ function App() {
 
   // * Handling playlist generated
   const handlePlaylist = async () => {
-    if (!access.token) {
+    if (!accessToken) {
       authPopup();
       return;
     }
     if (output.length === 0) {
-      setError('Please search for songs before generating your playlist. Try again.');
+      setError(
+        'Please search for songs before generating your playlist. Try again.'
+      );
       return;
     }
     setLoading(true);
 
     try {
-      const playlistId = await generatePlayList(accessToken);
+      const playlistId = await generatePlaylist(accessToken);
       if (playlistId) setPlaylistId(playlistId);
-    } catch {
+    } catch (err) {
       setError('Failed to create playlist');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div>
@@ -95,15 +102,28 @@ function App() {
           />
         </label>
 
-        <button
-          className="rounded-2xl border border-transparent px-4 py-2 text-base font-medium bg-[#1a1a1a] cursor-pointer transition hover:border-[#ffffff]"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? 'Loading...' : 'Check Vibe'}
-        </button>
+        <div className="grid grid-cols-2 gap-4 ">
+          <button
+            className="rounded-2xl border border-transparent px-4 py-2 text-base font-medium bg-[#1a1a1a] cursor-pointer transition hover:border-[#ffffff]"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Check Vibe'}
+          </button>
+
+          <button
+            onClick={handlePlaylist}
+            className="rounded-2xl border border-transparent px-4 py-2 text-base font-medium bg-[#1a1a1a] cursor-pointer transition hover:border-[#ffffff]"
+          >
+            {accessToken
+              ? 'Generate Spotify Playlist'
+              : 'Login for Playlist Generation'}
+          </button>
+        </div>
       </form>
       {error && <p>{error}</p>}
+
+      {/* similarSongs */}
       <div className="flex text-[16px]">
         {output && (
           <div className="m-4">
@@ -118,6 +138,27 @@ function App() {
           </div>
         )}
       </div>
+
+      {/* embed playlist */}
+      {playlistId && (
+        <div>
+          <h2>We have playlist generated for you:</h2>
+          {/* <iframe>
+            src={`https://open.spotify.com/embed/playlist/${playlistId}`}
+            width="100%" height="380" allow="encrypted-media"
+          </iframe> */}
+          <iframe
+            // style="border-radius:12px"
+            src="https://open.spotify.com/embed/playlist/0UOhs79xM3Nv87XYUz9l4l?utm_source=generator"
+            width="100%"
+            height="352"
+            frameBorder="0"
+            allowfullscreen=""
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          ></iframe>
+        </div>
+      )}
     </div>
   );
 }
