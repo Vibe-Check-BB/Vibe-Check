@@ -144,6 +144,8 @@ async function getLyrics(artist: string, trackName: string): Promise<string | nu
           continue;
         }
 
+        const id = track.id;
+
 
         lyricsData.push({
           artist: artist.name,
@@ -151,7 +153,8 @@ async function getLyrics(artist: string, trackName: string): Promise<string | nu
           spotifyId: track.id,
           imageURL: track.album.images[0].url,
           genre: genres.join(', '),
-          lyrics: ArtistLyrics
+          lyrics: ArtistLyrics,
+          // spotifyTrackid: id,     // if needed ***
         })
       }
     }
