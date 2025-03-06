@@ -62,55 +62,62 @@ const createAsciiId = (input: string): string => {
  * @param lyricsData - Array of lyrics objects with embeddings
  * @returns Promise that resolves when upload is complete
  */
-async function uploadToPinecone(lyricsData: LyricsObject[]): Promise<void> {
-  // Initialize Pinecone client
-  const pc = new Pinecone({ 
-    apiKey: process.env.PINECONE_API_KEY || ''
-  });
+async function uploadToPinecone(lyricsData: LyricsObject[]): Promise<boolean> {
+  try {
+    // Initialize Pinecone client
+    const pc = new Pinecone({ 
+      apiKey: process.env.PINECONE_API_KEY || ''
+    });
 
-  // Get the index
-  const index = pc.index('songs');
-  
-  // Convert lyrics objects to Pinecone records
-  const records: PineconeRecord[] = lyricsData
-    .filter(item => item.artist && item.song && Array.isArray(item.embedding)) // Filter out items missing required fields
-    .map(item => ({
-      id: createAsciiId(`${item.artist}-${item.song}`), // Create ASCII-only ID from artist and song
-      values: item.embedding,
-      metadata: {
-        artist: item.artist,
-        song: item.song,
-        spotifyId: item.spotifyId,
-        genre: item.genre || '',
-        lyrics: item.lyrics || '',
-        imageURL: item.imageURL || ''
-      }
-    }));
-
-  // Log the number of records to upload
-  console.log(`Preparing to upload ${records.length} records to Pinecone...`);
-
-  // Break records into chunks of 200
-  const recordChunks = chunks(records, 200);
-  console.log(`Split into ${recordChunks.length} batches of up to 200 records each`);
-
-  // Upload chunks sequentially
-  for (let i = 0; i < recordChunks.length; i++) {
-    const chunk = recordChunks[i];
-    try {
-      await index.upsert(chunk);
-      console.log(`Uploaded batch ${i + 1}/${recordChunks.length} (${chunk.length} records)`);
-    } catch (error) {
-      console.error(`Error uploading batch ${i + 1}:`, error);
-    }
+    // Get the index
+    const index = pc.index('songs');
     
-    // Add a small delay between batches to avoid rate limiting
-    if (i < recordChunks.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-  }
+    // Convert lyrics objects to Pinecone records
+    const records: PineconeRecord[] = lyricsData
+      .filter(item => item.artist && item.song && Array.isArray(item.embedding)) // Filter out items missing required fields
+      .map(item => ({
+        id: createAsciiId(`${item.artist}-${item.song}`), // Create ASCII-only ID from artist and song
+        values: item.embedding,
+        metadata: {
+          artist: item.artist,
+          song: item.song,
+          spotifyId: item.spotifyId,
+          genre: item.genre || '',
+          lyrics: item.lyrics || '',
+          imageURL: item.imageURL || ''
+        }
+      }));
 
-  console.log('Upload completed!');
+    // Log the number of records to upload
+    console.log(`Preparing to upload ${records.length} records to Pinecone...`);
+
+    // Break records into chunks of 200
+    const recordChunks = chunks(records, 200);
+    console.log(`Split into ${recordChunks.length} batches of up to 200 records each`);
+
+    // Upload chunks sequentially
+    for (let i = 0; i < recordChunks.length; i++) {
+      const chunk = recordChunks[i];
+      try {
+        await index.upsert(chunk);
+        console.log(`Uploaded batch ${i + 1}/${recordChunks.length} (${chunk.length} records)`);
+      } catch (error) {
+        console.error(`Error uploading batch ${i + 1}:`, error);
+        return false; // Return false to indicate upload failure
+      }
+      
+      // Add a small delay between batches to avoid rate limiting
+      if (i < recordChunks.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+
+    console.log('Upload completed!');
+    return true; // Return true to indicate successful upload
+  } catch (error) {
+    console.error('Error in uploadToPinecone:', error);
+    return false; // Return false to indicate upload failure
+  }
 }
 
 // Function to process the lyrics file and upload to Pinecone
@@ -119,6 +126,11 @@ async function processAndUpload(filePath: string = './data/lyrics_dataset'): Pro
     // Check if Pinecone API key is available
     if (!process.env.PINECONE_API_KEY) {
       throw new Error('PINECONE_API_KEY environment variable is not set. Please set it in your .env file.');
+    }
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`File not found: ${filePath}`);
     }
 
     // Read the file
@@ -137,7 +149,16 @@ async function processAndUpload(filePath: string = './data/lyrics_dataset'): Pro
     }
     
     // Upload to Pinecone
-    await uploadToPinecone(lyricsData);
+    const uploadSuccessful = await uploadToPinecone(lyricsData);
+    
+    // Delete the file if upload was successful
+    if (uploadSuccessful) {
+      console.log(`Upload successful. Deleting file: ${filePath}`);
+      fs.unlinkSync(filePath);
+      console.log(`File deleted: ${filePath}`);
+    } else {
+      console.log(`Upload was not successful. File was not deleted.`);
+    }
     
   } catch (error) {
     console.error('Error processing and uploading:', error);

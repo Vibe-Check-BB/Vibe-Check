@@ -1,4 +1,3 @@
-import { access } from 'fs';
 import { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthContextType {
