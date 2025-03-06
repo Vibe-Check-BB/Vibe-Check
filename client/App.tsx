@@ -73,6 +73,7 @@ function App() {
     setLoading(true);
 
     try {
+      console.log(accessToken);
       const playlistId = await generatePlaylist(accessToken);
       if (playlistId) setPlaylistId(playlistId);
     } catch (err) {

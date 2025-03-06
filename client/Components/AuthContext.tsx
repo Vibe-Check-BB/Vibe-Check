@@ -30,6 +30,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 // Return the token found in the context, hook up in App
 export function useAuth() {
   const context = useContext(AuthContext);
+  console.log(context);
   if (!context) throw new Error('Failed in useAuth.');
   return context;
 }
+
+

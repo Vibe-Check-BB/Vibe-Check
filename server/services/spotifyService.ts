@@ -7,16 +7,24 @@ import SpotifyWebApi from 'spotify-web-api-node';
 // import dotenv from 'dotenv';
 // dotenv.config();
 
-const spotifyApi = new SpotifyWebApi({
-  clientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
-  clientSecret: import.meta.env.VITE_SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'http://localhost:5173',
-});
+const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
+const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
+const redirectUri = 'http://localhost:5173/auth-popup';
+
+// const spotifyApi = new SpotifyWebApi({
+//   clientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
+//   clientSecret: import.meta.env.VITE_SPOTIFY_CLIENT_SECRET,
+//   redirectUri: 'http://localhost:5173/',
+// });
 
 export function authPopup() {
-  const state = 'ElevatorBabyBoyMusicFunTimes5!';
-  const scopes = ['playlist-modify-public'];
-  const userAuthUrl = spotifyApi.createAuthorizeURL(scopes, state);
+//   const state = 'ElevatorBabyBoyMusicFunTimes5!';
+  const scope = 'playlist-modify-public';
+//   const userAuthUrl = spotifyApi.createAuthorizeURL(scopes, state);
+    const userAuthUrl =
+      `https://accounts.spotify.com/authorize?` +
+      `client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&scope=${encodeURIComponent(scope)}&show_dialog=true`;
 
   const popup = window.open(
     userAuthUrl,
@@ -27,9 +35,12 @@ export function authPopup() {
   if (!popup) {
     console.error('Popup window blocked!')
   }
+  console.log('Message received:', event.data);
   // Listen for auth popup
   const handleMessage = (event: MessageEvent) => {
+    if (event.origin !== window.location.origin) return;
     if (event.data.spotify_access_token) {
+        console.log(event.data.spotify_access_token);
       localStorage.setItem(
         'spotify_access_token',
         event.data.spotify_access_token
