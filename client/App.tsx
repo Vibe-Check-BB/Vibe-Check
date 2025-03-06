@@ -1,5 +1,6 @@
 import React, { use, useState } from 'react';
 import './styles.css';
+import { access } from 'fs';
 
 interface Song {
   id: string;
@@ -15,6 +16,7 @@ function App() {
   const [error, setError] = useState('');
   const [output, setOutput] = useState<Song[]>([]);
 
+  // * Handling song search
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -51,6 +53,28 @@ function App() {
     }
   };
 
+  // * Handling playlist generated
+  const handlePlaylist = async () => {
+    if (!access.token) {
+      authPopup();
+      return;
+    }
+    if (output.length === 0) {
+      setError('Please search for songs before generating your playlist. Try again.');
+      return;
+    }
+    setLoading(true);
+
+    try {
+      const playlistId = await generatePlayList(accessToken);
+      if (playlistId) setPlaylistId(playlistId);
+    } catch {
+      setError('Failed to create playlist');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div>
       <h1 className="flex m-8 text-3xl justify-center">
@@ -86,7 +110,9 @@ function App() {
             <h2>We have these songs for you:</h2>
             <ul>
               {output.map((song, i) => (
-                <div key={song.id}>{i+1}. {song.song}</div>
+                <div key={song.id}>
+                  {i + 1}. {song.song}
+                </div>
               ))}
             </ul>
           </div>
