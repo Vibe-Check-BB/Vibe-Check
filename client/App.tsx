@@ -7,6 +7,7 @@ import { authPopup, generatePlaylist } from '../server/services/spotifyService';
 interface Song {
   id: string;
   song: string;
+  spotifyId: string;
 }
 interface Response {
   similarSongs: Song[];
@@ -128,12 +129,20 @@ function App() {
       <div className="flex text-[16px]">
         {output && (
           <div className="m-4">
-            <h2>We have these songs for you:</h2>
-            <ul>
-              {output.map((song, i) => (
-                <div key={song.id}>
-                  {i + 1}. {song.song}
-                </div>
+            <h2 className='font-bold'>We have these songs for you:</h2>
+            <ul className='list-disc pl-4'>
+              {output.map((song) => (
+                <li key={song.id} className='py-1'>
+                  {/* {i + 1}. {' '} */}
+                  {/* open songUrl in new tab */}
+                  <a
+                    href={`https://open.spotify.com/track/${song.spotifyId}`}
+                    target="_blank"
+                    className="hover:text-blue-500 hover:underline"
+                  >
+                    {song.song}
+                  </a>
+                </li>
               ))}
             </ul>
           </div>
