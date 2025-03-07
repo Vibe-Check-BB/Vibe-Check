@@ -7,6 +7,7 @@ import { authPopup, generatePlaylist } from '../server/services/spotifyService';
 interface Song {
   id: string;
   song: string;
+  spotifyId: string;
 }
 interface Response {
   similarSongs: Song[];
@@ -86,14 +87,14 @@ function App() {
   return (
     <div>
       <h1 className="flex m-8 text-3xl justify-center">
-        Hi! This is VibeCheck
+        Hi! Welcome to VibeCheck
       </h1>
       <form
         className="flex flex-col text-[18px] content-center"
         onSubmit={handleSubmit}
       >
         <label className="flex flex-col">
-          ☀ Today, I want to listen the songs like:
+          💚 Today, I want to listen the songs like:
           <input
             className="rounded-2xl border border-transparent my-3 py-5 p-3 text-base font-medium bg-[#1a1a1a] "
             type="text"
@@ -128,12 +129,20 @@ function App() {
       <div className="flex text-[16px]">
         {output && (
           <div className="m-4">
-            <h2>We have these songs for you:</h2>
-            <ul>
-              {output.map((song, i) => (
-                <div key={song.id}>
-                  {i + 1}. {song.song}
-                </div>
+            <h2 className='font-bold'>We have these songs for you:</h2>
+            <ul className='list-disc pl-4'>
+              {output.map((song) => (
+                <li key={song.id} className='py-1'>
+                  {/* {i + 1}. {' '} */}
+                  {/* open songUrl in new tab */}
+                  <a
+                    href={`https://open.spotify.com/track/${song.spotifyId}`}
+                    target="_blank"
+                    className="hover:text-blue-500 hover:underline"
+                  >
+                    {song.song}
+                  </a>
+                </li>
               ))}
             </ul>
           </div>
