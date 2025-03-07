@@ -87,14 +87,14 @@ function App() {
   return (
     <div>
       <h1 className="flex m-8 text-3xl justify-center">
-        Hi! This is VibeCheck
+        Hi! Welcome to VibeCheck
       </h1>
       <form
         className="flex flex-col text-[18px] content-center"
         onSubmit={handleSubmit}
       >
         <label className="flex flex-col">
-          ☀ Today, I want to listen the songs like:
+          💚 Today, I want to listen the songs like:
           <input
             className="rounded-2xl border border-transparent my-3 py-5 p-3 text-base font-medium bg-[#1a1a1a] "
             type="text"
