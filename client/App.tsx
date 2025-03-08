@@ -1,9 +1,14 @@
-import React, { use, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles.css';
+
+import { useAuth } from './Components/AuthContext';
+import { authPopup, generatePlaylist } from '../server/services/spotifyService';
+import { CreatePlaylistButton } from './Components/CreatePlaylistButton';
 
 interface Song {
   id: string;
   song: string;
+  spotifyId: string;
 }
 interface Response {
   similarSongs: Song[];
@@ -15,6 +20,10 @@ function App() {
   const [error, setError] = useState('');
   const [output, setOutput] = useState<Song[]>([]);
 
+  const { accessToken } = useAuth();
+  const [playlistId, setPlaylistId] = useState<string | null>(null);
+
+  // * Handling song search
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -51,17 +60,59 @@ function App() {
     }
   };
 
+  // * Handling playlist generated
+  const handlePlaylist = async () => {
+    if (!accessToken) {
+      authPopup();
+      return;
+    }
+    if (output.length === 0) {
+      setError(
+        'Please search for songs before generating your playlist. Try again.'
+      );
+      return;
+    }
+    setLoading(true);
+
+    try {
+      console.log(accessToken);
+      const playlistId = await generatePlaylist(accessToken, output);
+      console.log('Playlist ID:', playlistId);
+      if (playlistId) setPlaylistId(playlistId);
+    } catch (err) {
+      setError('Failed to create playlist');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      console.log('Access Token:', accessToken);
+    } else {
+      console.log('No Access Token available');
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      window.opener.postMessage({ type: 'SPOTIFY_CALLBACK', code }, '*');
+      window.close();
+    }
+  }, []);
+
   return (
     <div>
       <h1 className="flex m-8 text-3xl justify-center">
-        Hi! This is VibeCheck
+        Hi! Welcome to VibeCheck
       </h1>
       <form
         className="flex flex-col text-[18px] content-center"
         onSubmit={handleSubmit}
       >
         <label className="flex flex-col">
-          ☀ Today, I want to listen the songs like:
+          💚 Today, I want to listen the songs like:
           <input
             className="rounded-2xl border border-transparent my-3 py-5 p-3 text-base font-medium bg-[#1a1a1a] "
             type="text"
@@ -71,29 +122,78 @@ function App() {
           />
         </label>
 
-        <button
-          className="rounded-2xl border border-transparent px-4 py-2 text-base font-medium bg-[#1a1a1a] cursor-pointer transition hover:border-[#ffffff]"
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? 'Loading...' : 'Check Vibe'}
-        </button>
+        <div className="grid grid-cols-2 gap-4 ">
+          <button
+            className="rounded-2xl border border-transparent px-4 py-2 text-base font-medium bg-[#1a1a1a] cursor-pointer transition hover:border-[#ffffff]"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? 'Loading...' : 'Check Vibe'}
+          </button>
+
+          <button
+            onClick={handlePlaylist}
+            className="rounded-2xl border border-transparent px-4 py-2 text-base font-medium bg-[#1a1a1a] cursor-pointer transition hover:border-[#ffffff]"
+          >
+            {accessToken
+              ? 'Generate Spotify Playlist'
+              : 'Login for Playlist Generation'}
+          </button>
+        </div>
       </form>
       {error && <p>{error}</p>}
+
+      {/* similarSongs */}
       <div className="flex text-[16px]">
         {output && (
           <div className="m-4">
-            <h2>We have these songs for you:</h2>
-            <ul>
-              {output.map((song, i) => (
-                <div key={song.id}>
-                  {i + 1}. {song.song}
-                </div>
+            <h2 className="font-bold">We have these songs for you:</h2>
+            <ul className="list-disc pl-4">
+              {output.map((song) => (
+                <li key={song.id} className="py-1">
+                  {/* {i + 1}. {' '} */}
+                  {/* open songUrl in new tab */}
+                  <a
+                    href={`https://open.spotify.com/track/${song.spotifyId}`}
+                    target="_blank"
+                    className="hover:text-blue-500 hover:underline"
+                  >
+                    {song.song}
+                  </a>
+                </li>
               ))}
             </ul>
           </div>
         )}
       </div>
+
+      {/* embed playlist */}
+      {playlistId && (
+        <div>
+          <h2>We have playlist generated for you:</h2>
+          {/* <iframe>
+            src={`https://open.spotify.com/embed/playlist/${playlistId}`}
+            width="100%" height="380" allow="encrypted-media"
+          </iframe> */}
+          <iframe
+            // style="border-radius:12px"
+            src={`https://open.spotify.com/embed/playlist/${playlistId}`}
+            width="100%"
+            height="352"
+            frameBorder="0"
+            // allowfullscreen=""
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy"
+          ></iframe>
+        </div>
+      )}
+
+      {/* {output.length > 0 && (
+        <CreatePlaylistButton
+          songs={output}
+          onPlaylistCreated={setPlaylistId}
+        />
+      )} */}
     </div>
   );
 }
