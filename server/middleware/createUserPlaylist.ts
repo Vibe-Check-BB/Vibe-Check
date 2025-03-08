@@ -27,10 +27,18 @@ export function getuserAuthUrl(): string {
   return spotifyApi.createAuthorizeURL(scopes, state);
 }
 
+export const getCodeFromUrl = (url: string): string | null => {
+  const urlParams = new URLSearchParams(url.split('?')[1]);
+  const code = urlParams.get('code');
+  return code;
+}
 
 // exchange the authorization code for an access token
 export const exchangeCodeForToken = async (code:string) => {
   try {
+    if (!code) {
+      throw new Error('No code found in URL');
+    }
     const data = await spotifyApi.authorizationCodeGrant(code);
     const accessToken = data.body.access_token;
     const refreshToken = data.body.refresh_token;
