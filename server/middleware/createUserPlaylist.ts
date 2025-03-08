@@ -41,6 +41,9 @@ export const getCodeFromUrl = (url: string): string | null => {
 // exchange the authorization code for an access token
 export const exchangeCodeForToken = async (code:string) => {
   try {
+    if (!code) {
+      throw new Error('No code found in URL');
+    }
     const data = await spotifyApi.authorizationCodeGrant(code);
     const accessToken = data.body.access_token;
     const refreshToken = data.body.refresh_token;

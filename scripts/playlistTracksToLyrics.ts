@@ -28,7 +28,7 @@ async function authenticate() {
 
 async function getTrackIds(): Promise<Map<string, TrackData>> {
   await authenticate();
-  const playlistId = '2OX1wqEoaL6pzZHHWE6yAH';
+  const playlistId = '4XcEgx2FuK62tERSjuf1uN';
   let playlistTracks
   try{
     playlistTracks = await spotifyApi.getPlaylistTracks(playlistId);

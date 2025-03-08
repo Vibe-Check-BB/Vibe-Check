@@ -3,6 +3,7 @@ import './styles.css';
 
 import { useAuth } from './Components/AuthContext';
 import { authPopup, generatePlaylist } from '../server/services/spotifyService';
+import { CreatePlaylistButton } from './Components/CreatePlaylistButton';
 
 interface Song {
   id: string;
@@ -75,7 +76,8 @@ function App() {
 
     try {
       console.log(accessToken);
-      const playlistId = await generatePlaylist(accessToken);
+      const playlistId = await generatePlaylist(accessToken, output);
+      console.log('Playlist ID:', playlistId);
       if (playlistId) setPlaylistId(playlistId);
     } catch (err) {
       setError('Failed to create playlist');
@@ -83,7 +85,6 @@ function App() {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     if (accessToken) {
@@ -93,17 +94,16 @@ function App() {
     }
   }, [accessToken]);
 
-
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      window.opener.postMessage({ type: 'SPOTIFY_CALLBACK', code }, '*');
+      window.close();
+    }
+  }, []);
 
   return (
-
-
     <div>
-      <div>
-      <p>Spotify Access Token: {accessToken}</p>
-    </div>
-
-
       <h1 className="flex m-8 text-3xl justify-center">
         Hi! Welcome to VibeCheck
       </h1>
@@ -147,10 +147,10 @@ function App() {
       <div className="flex text-[16px]">
         {output && (
           <div className="m-4">
-            <h2 className='font-bold'>We have these songs for you:</h2>
-            <ul className='list-disc pl-4'>
+            <h2 className="font-bold">We have these songs for you:</h2>
+            <ul className="list-disc pl-4">
               {output.map((song) => (
-                <li key={song.id} className='py-1'>
+                <li key={song.id} className="py-1">
                   {/* {i + 1}. {' '} */}
                   {/* open songUrl in new tab */}
                   <a
@@ -177,15 +177,22 @@ function App() {
           </iframe> */}
           <iframe
             // style="border-radius:12px"
-            src="https://open.spotify.com/embed/playlist/0UOhs79xM3Nv87XYUz9l4l?utm_source=generator"
+            src={`https://open.spotify.com/embed/playlist/${playlistId}`}
             width="100%"
             height="352"
             frameBorder="0"
-            allowfullscreen=""
+            // allowfullscreen=""
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy"
           ></iframe>
         </div>
+      )}
+
+      {output.length > 0 && (
+        <CreatePlaylistButton
+          songs={output}
+          onPlaylistCreated={setPlaylistId}
+        />
       )}
     </div>
   );
