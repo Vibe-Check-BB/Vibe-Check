@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import express from "express";
 import dotenv from "dotenv";
-import { getuserAuthUrl, getCodeFromUrl, exchangeCodeForToken } from '../middleware/createUserPlaylist.ts';
+import { getuserAuthUrl, exchangeCodeForToken } from '../middleware/createUserPlaylist.ts';
 dotenv.config();
 const router = express.Router();
 

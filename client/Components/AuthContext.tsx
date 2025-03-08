@@ -10,8 +10,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Manage userAuth state, mounted in the root
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [playlistName, setPlaylistName] = useState<string | null>(null);
 
   useEffect(() => {
     // check for saved token
@@ -20,15 +18,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAccessToken(storedToken);
     }
   }, []);
-
-
-//   // listen for token
-// const handleToken = () => {
-
-//  localStorage.setItem('spotify_access_token',spotify_access_token)
-//  setAccessToken()
-
-// }
 
   return (
     <AuthContext.Provider value={{ accessToken, setAccessToken }}>
