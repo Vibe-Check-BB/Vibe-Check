@@ -86,7 +86,9 @@ function App() {
             <h2>We have these songs for you:</h2>
             <ul>
               {output.map((song, i) => (
-                <div key={song.id}>{i+1}. {song.song}</div>
+                <div key={song.id}>
+                  {i + 1}. {song.song}
+                </div>
               ))}
             </ul>
           </div>
