@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { getEmbedding, getOpenAIResponse } from '../services/openaiService.js';
 import { findSimilarSongs } from '../services/pineconeService.js';
-import { FinalSongResponse } from '../../types/songTypes.js';
 
 export const searchSongs = async (
   req: Request,
@@ -17,48 +16,14 @@ export const searchSongs = async (
       throw new Error('Failed to generate embeddings on user query');
     }
 
-    const pineconeResults = await findSimilarSongs(queryEmbedding);
-    if (!pineconeResults.length) {
-      res.locals.songs = [];
-      return next();
+    const similarSongs = await findSimilarSongs(queryEmbedding);
+
+    // Pinecone index is empty, redirect to OpenAI for response
+    if (similarSongs.length === 0) {
+      res.locals.similarSongs = await getOpenAIResponse(userQuery);
+    } else {
+      res.locals.similarSongs = similarSongs;
     }
-
-    console.log('pineconeResults', pineconeResults);
-
-    const openAIRecommendations = await getOpenAIResponse(
-      userQuery,
-      pineconeResults.map(({ id, song, artist }) => ({
-        id: typeof id === 'string' ? id : String(id),
-        song: typeof song === 'string' ? song : String(song),
-        artist: typeof artist === 'string' ? artist : String(artist),
-      }))
-    );
-
-    console.log('openAIRecommmendations', openAIRecommendations);
-
-    const finalResults: FinalSongResponse[] = (openAIRecommendations ?? []).map(
-      (openAISong) => {
-        const pineconeData = pineconeResults.find(
-          (pineconeSong) => pineconeSong.id === openAISong.id
-        );
-
-        return {
-          id: pineconeData?.id || openAISong?.id,
-          song: openAISong.song,
-          artist: openAISong.artist,
-          reason: openAISong.reason,
-          genre:
-            typeof pineconeData?.genre === 'string'
-              ? pineconeData.genre
-              : 'Unknown',
-          score: pineconeData?.score || 0,
-        };
-      }
-    );
-    console.log('finalResults', finalResults);
-
-    res.locals.similarSongs = finalResults;
-    return next();
 
     // Debugging mock data (uncomment if needed)
     /*
@@ -77,6 +42,8 @@ export const searchSongs = async (
       },
     ];
     */
+
+    return next();
   } catch (err) {
     return next({
       log: `searchSongs: ${

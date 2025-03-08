@@ -43,19 +43,18 @@ export const findSimilarSongs = async (queryEmbedding: number[]) => {
   try {
     const queryResponse = await index.query({
       vector: queryEmbedding,
-      topK: 50,
+      topK: 10,
       includeMetadata: true,
     });
 
     return queryResponse.matches.map((match) => ({
       id: match.id,
       score: match.score,
-      song: match.metadata?.song || 'Unknown', 
       artist: match.metadata?.artist || 'Unknown',
       genre: match.metadata?.genre || 'Unknown',
-      lyrics: match.metadata?.lyrics || '',
-      imageURL: match.metadata?.imageURL || null,
-      spotifyId: match.metadata?.spotifyId || null,
+      song: match.metadata?.song || 'Unknown',
+      imageURL: match.metadata?.imageURL || 'Unknown',
+      spotifyId: match.metadata?.spotifyId || 'Unknown',
     }));
   } catch (err) {
     console.error('Error querying Pinecone:', err);
