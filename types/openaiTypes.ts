@@ -4,6 +4,15 @@ export interface OpenAIEmbeddingResponse {
   model: string;
 }
 
+export interface OpenAIMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
 export interface OpenAIChatResponse {
-  choices: { message: { content: string } }[];
+  id: string;
+  object: string;
+  created: number;
+  model: string;
+  choices: { index: number; message: { role: string; content: string } }[];
 }

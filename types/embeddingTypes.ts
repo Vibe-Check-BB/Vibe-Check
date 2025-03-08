@@ -3,7 +3,7 @@ export interface EmbedSongRequest {
   lyrics: string;
   artist?: string;
   genre?: string;
-  song?: string;
-  spotifyId?:string;
-  imageURL?:string;
+  song?: string; 
+  spotifyId?: string;
+  imageURL?: string;
 }
