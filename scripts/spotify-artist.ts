@@ -144,7 +144,7 @@ async function getLyrics(artist: string, trackName: string): Promise<string | nu
           continue;
         }
 
-        const id = track.id;
+        // const id = track.id;
 
 
         lyricsData.push({
