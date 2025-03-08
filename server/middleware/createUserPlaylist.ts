@@ -27,11 +27,16 @@ export function getuserAuthUrl(): string {
   return spotifyApi.createAuthorizeURL(scopes, state);
 }
 
+//TODO: EXTRACT CODE FROM URL OF 
 export const getCodeFromUrl = (url: string): string | null => {
   const urlParams = new URLSearchParams(url.split('?')[1]);
   const code = urlParams.get('code');
   return code;
 }
+//**
+// http://localhost:5173/?code=AQB_eDPfptdMiwTk4I9rBm-_3NXVdjJsYIKcOvihvOHHr6yjFBUfAdzMVz_-w-4b7_v2kjnnKcp39AIt-ACLOQdoIDRGP_gWyssbpvVdxs_h3T8TchGsSwUb_dBTE6n-JIL9lCbHqAsUizwFz-q7IIIyoLpnGmzGhC-EB4ghwEsbXfrHXA3SP03cIKgdTC_Fxg&state=ElevatorBabyBoyMusicFunTimes5%21#_=_
+
+//  */
 
 // exchange the authorization code for an access token
 export const exchangeCodeForToken = async (code:string) => {
