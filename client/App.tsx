@@ -188,12 +188,12 @@ function App() {
         </div>
       )}
 
-      {output.length > 0 && (
+      {/* {output.length > 0 && (
         <CreatePlaylistButton
           songs={output}
           onPlaylistCreated={setPlaylistId}
         />
-      )}
+      )} */}
     </div>
   );
 }
