@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles.css';
 
 import { useAuth } from './Components/AuthContext';
@@ -84,8 +84,26 @@ function App() {
     }
   };
 
+
+  useEffect(() => {
+    if (accessToken) {
+      console.log('Access Token:', accessToken);
+    } else {
+      console.log('No Access Token available');
+    }
+  }, [accessToken]);
+
+
+
   return (
+
+
     <div>
+      <div>
+      <p>Spotify Access Token: {accessToken}</p>
+    </div>
+
+
       <h1 className="flex m-8 text-3xl justify-center">
         Hi! Welcome to VibeCheck
       </h1>

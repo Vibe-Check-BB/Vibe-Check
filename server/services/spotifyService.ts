@@ -9,7 +9,8 @@ import SpotifyWebApi from 'spotify-web-api-node';
 
 const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 const clientSecret = import.meta.env.VITE_SPOTIFY_CLIENT_SECRET;
-const redirectUri = 'http://localhost:5173/auth-popup';
+const redirectUri = 'http://localhost:5173';
+// /auth-popup
 
 // const spotifyApi = new SpotifyWebApi({
 //   clientId: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
